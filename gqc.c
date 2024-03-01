@@ -121,16 +121,7 @@ char* gen_guess(int length){
 	return code;
 }
 
-int main(int argc, char *argv[]){
-
-	if(argc < 2){
-		printf("Please provide canvas api key\n");
-		return 1;
-	}	
-	
-	char* canvas_key = argv[1];
-	//printf("%s\n", canvas_key);
-
+int random_guessing(char* canvas_key){
 	int correct = 0;
 	while(correct == 0){
 
@@ -169,5 +160,91 @@ int main(int argc, char *argv[]){
 		//printf("Time: %f\n", (double)(end - start)/CLOCKS_PER_SEC);
 	}
 	
+	return correct;
+}
+
+int test_word(char* canvas_key, char* code){
+	int correct = 0;
+
+	char codeF[7] = "";
+	strcat(codeF, code);
+	codeF[5] = '_';
+	codeF[6] = '\0';
+	int res = guess(codeF, canvas_key);
+	if(res == 1){
+		printf("Correct Code: %s\n", codeF);
+		correct = 1;
+	}
+	
+	char codeL[7] = "";
+	codeL[0] = '_';
+	strcat(codeL, code);
+	codeL[6] = '\0';
+	res = guess(codeL, canvas_key);
+	if(res == 1){
+		printf("Correct Code: %s\n", codeL);
+		correct = 1;
+	}
+
+	//free(code);
+	
+	return correct;
+}
+
+int systematic_guessing(char* canvas_key, int a, int b, int c, int d, int e){
+	char letters[26] = "abcdefghijklmnopqrstuvwxyz";
+	
+	for(int zero = a; zero < 26; zero++){
+		for(int one = b; one < 26; one++){
+			for(int two = c; two < 26; two++){
+				for(int three = d; three < 26; three++){
+					for(int four = e; four < 26; four++){
+						char* word = malloc(5*sizeof(char));
+						word[0] = letters[zero];
+						word[1] = letters[one];
+						word[2] = letters[two];
+						word[3] = letters[three];
+						word[4] = letters[four];
+						int correct = test_word(canvas_key, word);
+						if(correct == 1){
+							//write correct answer to txt file
+							FILE *f = fopen("code.txt", "w");
+							if (f == NULL)
+							{
+    							printf("Error opening file!\n");
+    							exit(1);
+							}
+							fprintf(f, "Code: %s\n", word);
+							fclose(f);
+
+							return correct;
+						}
+						free(word);
+					}
+				}	
+			}
+		}
+	}
+
+	return 0;
+}
+
+int main(int argc, char *argv[]){
+
+	if(argc < 2){
+		printf("Please provide canvas api key\n");
+		return 1;
+	}	
+	
+	char* canvas_key = argv[1];
+	//printf("%s\n", canvas_key);
+
+	//int correct = random_guessing(canvas_key);
+	int a = 0, b = 0, c = 0, d = 0, e = 0;
+	int correct = systematic_guessing(canvas_key, a, b, c, d, e);
+	if(correct == 1){
+		printf("Found answer\n");
+	}
+
 	return 0;
 }
