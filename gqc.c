@@ -217,7 +217,9 @@ void* systematic_guessing(void* v){
 						int correct = test_word(canvas_key, word);
 						if(correct == 1){
 							//write correct answer to txt file
-							FILE *f = fopen("code.txt", "w");
+							char* file_name = word;
+							strcat(file_name, ".txt");
+							FILE *f = fopen(file_name, "w");
 							if (f == NULL)
 							{
     							printf("Error opening file!\n");
@@ -252,7 +254,7 @@ int main(int argc, char *argv[]){
 
 	int a = 0; //change this to change how far in the outer loop you want to skip	
 
-	int n = 10; //how many threads to spawn 
+	int n = 4; //how many threads to spawn 
 	struct args arg[n];
 
 	//arg.canvas_key = canvas_key;
