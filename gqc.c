@@ -252,7 +252,7 @@ int main(int argc, char *argv[]){
 	//printf("%s\n", canvas_key);
 	
 
-	int a = 0; //change this to change how far in the outer loop you want to skip	
+	int a = 4; //change this to change how far in the outer loop you want to skip	
 
 	int n = 4; //how many threads to spawn 
 	struct args arg[n];

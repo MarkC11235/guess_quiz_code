@@ -5,5 +5,5 @@ if [ $# -lt 1 ]; then
 	exit 1
 fi 
 
-gcc -o gqc gqc.c -lcurl
+gcc -o gqc gqc.c -lcurl -pthread
 ./gqc $1
