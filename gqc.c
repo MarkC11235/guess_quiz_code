@@ -101,22 +101,22 @@ int guess(char code[], char canvas_key[]){
 }
 
 char* gen_guess(int length){
-	char* code = malloc((length + 1) * sizeof(char));
+	char* code = malloc((length) * sizeof(char));
 	if(code == NULL){
 		fprintf(stderr, "Memory allocation failed\n");
 		exit(1);
 	}
 
-	const char charset[] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$^&*()_-+={}[]|~`"; // Characters to choose from
+	const char charset[] = "abcdefghijklmnopqrstuvwxyz"; // Characters to choose from
     int charsetLength = sizeof(charset) - 1; // Length of the charset
 
-    srand(time(NULL)); // Seed the random number generator
+    //srand(time(NULL)); // Seed the random number generator
 
     for (int i = 0; i < length; i++) {
         code[i] = charset[rand() % charsetLength]; // Pick a random character from the charset
     }
 
-	code[length] = '\0'; //add null terminator to end of string
+	//code[length] = '\0'; //add null terminator to end of string
 
 	return code;
 }
@@ -129,19 +129,44 @@ int main(int argc, char *argv[]){
 	}	
 	
 	char* canvas_key = argv[1];
-	printf("%s\n", canvas_key);
+	//printf("%s\n", canvas_key);
 
 	int correct = 0;
 	while(correct == 0){
-		int size = 4;
+
+		//clock_t start, end;
+     	//double cpu_time_used;
+
+		//start = clock();		
+
+		int size = 5;
 		char* code = gen_guess(size);
-		int res = guess(code, canvas_key);
+		
+		char codeF[7] = "";
+		strcat(codeF, code);
+		codeF[5] = '_';
+		codeF[6] = '\0';
+		int res = guess(codeF, canvas_key);
 		if(res == 1){
-			printf("Correct Code: %s\n", code);
+			printf("Correct Code: %s\n", codeF);
 			correct = 1;
 		}
+	
+		char codeL[7] = "";
+		codeL[0] = '_';
+		strcat(codeL, code);
+		codeL[6] = '\0';
+		res = guess(codeL, canvas_key);
+		if(res == 1){
+			printf("Correct Code: %s\n", codeL);
+			correct = 1;
+		}
+
 		free(code);
 		//correct = 1; //Temporary
+
+		//end = clock();
+		//printf("Time: %f\n", (double)(end - start)/CLOCKS_PER_SEC);
 	}
 	
 	return 0;
